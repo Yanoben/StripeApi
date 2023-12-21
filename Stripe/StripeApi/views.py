@@ -1,10 +1,21 @@
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 import stripe
 from .models import Item
 
 stripe.api_key = "sk_test_YOUR_STRIPE_SECRET_KEY"
+
+
+def home(request):
+    items = Item.objects.all()
+    return render(request, 'index.html', {'items': items})
+
+
+def get_item(request, id):
+    item = get_object_or_404(Item, pk=id)
+    return render(request, 'item.html', {'item': item})
+
 
 def buy_item(request, id):
     item = get_object_or_404(Item, pk=id)
@@ -25,8 +36,3 @@ def buy_item(request, id):
         cancel_url=request.build_absolute_uri(reverse('cancel')),
     )
     return JsonResponse({'session_id': session.id})
-
-def get_item(request, id):
-    item = get_object_or_404(Item, pk=id)
-    html = f"<h1>{item.name}</h1><p>{item.description}</p><button onclick='redirectToCheckout({item.id})'>Buy</button>"
-    return HttpResponse(html)
