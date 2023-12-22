@@ -1,38 +1,53 @@
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404
 import stripe
-from .models import Item
 
-stripe.api_key = "sk_test_YOUR_STRIPE_SECRET_KEY"
+from django.conf import settings
+from StripeApi.models import Item
 
-
-def home(request):
-    items = Item.objects.all()
-    return render(request, 'index.html', {'items': items})
+stripe.api_key = settings.STRIPE_SECRET_KEY
+public_key = settings.STRIPE_PUBLISHABLE_KEY
 
 
-def get_item(request, id):
-    item = get_object_or_404(Item, pk=id)
-    return render(request, 'item.html', {'item': item})
+def get_stripe_session_id(request, id):
 
+    item = get_object_or_404(Item, id=id)
 
-def buy_item(request, id):
-    item = get_object_or_404(Item, pk=id)
     session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=[{
-            'price_data': {
-                'currency': 'usd',
-                'product_data': {
-                    'name': item.name,
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {"name": item.name},
+                    "unit_amount": item.price,
                 },
-                'unit_amount': int(item.price * 100),  # в центах
+                "quantity": 1,
             },
-            'quantity': 1,
-        }],
-        mode='payment',
-        success_url=request.build_absolute_uri(reverse('success')),
-        cancel_url=request.build_absolute_uri(reverse('cancel')),
+        ],
+        mode="payment",
+        success_url=config.settings.DOMAIN + '/success/',
+        cancel_url=config.settings.DOMAIN + '/cancel/'
     )
-    return JsonResponse({'session_id': session.id})
+
+
+    return JsonResponse({'sessionId': session.id})
+
+
+def get_info_about_item(request, id):
+    '''Выдаёт данные продукта + кнопку для оплаты'''
+    item = get_object_or_404(Item, id=id)
+    return render(request, 'stripe/checkout.html', {'item': item, 'public_key': public_key})
+
+
+def success(request):
+    return HttpResponse('Успешно')
+
+
+def cancel(request):
+    return HttpResponse("No, that's wrong!")
+
+
+def all_obj(request):
+    items = Item.objects.all()
+
+    return render(request, 'stripe/items.html', {'items': items})

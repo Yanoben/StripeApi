@@ -1,10 +1,10 @@
 from django.urls import path
-
-from . import views
+from .views import get_stripe_session_id, get_info_about_item, success, cancel, all_obj
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('item/<id>/', views.get_item, name='get_item'),
-    # path('config/', views.stripe_config),
-    # path('buy/<id>/', views.buy),
-]
+    path('buy/<int:id>', get_stripe_session_id,  name='create-checkout-session'),
+    path('item/<int:id>', get_info_about_item, name='item'),
+    path('cancel/', cancel, name='cancel'),
+    path('success/', success, name='success'),
+    path('', all_obj, name='home')
+    ]

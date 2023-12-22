@@ -1,21 +1,68 @@
-# Application in Django + Stripe API.
+* Реализатция Django + Stripe API бэкенд со следующим функционалом и условиями:
+* Django Модель `Item` с полями `(name, description, price) `
+* API с двумя методами:
+    * GET `/buy/{id}`, c помощью которого можно получить Stripe Session Id для оплаты выбранного Item. При выполнении
+      этого метода c бэкенда с помощью python библиотеки stripe должен выполняться
+      запрос` stripe.checkout.Session.create(...)` и полученный session.id выдаваться в результате запроса
+    * GET `/item/{id}`, c помощью которого можно получить простейшую HTML страницу, на которой будет информация о
+      выбранном `Item` и кнопка Buy. По нажатию на кнопку Buy должен происходить запрос на `/buy/{id}`, получение
+      session_id и далее с помощью JS библиотеки Stripe происходить редирект на Checkout
+      форму `stripe.redirectToCheckout(sessionId=session_id)`
 
-### Quick Start
-Чтобы запустить этот проект локально на вашем компьютере, выполните следующие действия.
-1. Настройте виртуальную среду Python.
 
-2. Выполните следующие команды
+* Запуск используя `Docker`
 
-`pip install -r requirements.txt`
+* Просмотр Django Моделей в Django Admin панели - доступно по адресу `127.0.0.1:8000/admin`
 
-`python manage.py makemigrations`
+#### Для админки:
+```
+Login : admin
+Parol : admin
+```
 
-`python manage.py migrate`
 
-`python manage.py runserver`
+## Для запуска заполните в env поля STRIPE_PUBLISHABLE_KEY и STRIPE_SECRET_KEY
 
-3. Откройте браузер и перейдите на http://localhost:8000/
+Publishable key:
+https://dashboard.stripe.com/apikeys
 
-4. 
-- GET /buy/{id}, c помощью которого можно получить Stripe Session Id для оплаты выбранного Item. При выполнении этого метода c бэкенда с помощью python библиотеки stripe должен выполняться запрос stripe.checkout.Session.create(...) и полученный session.id выдаваться в результате запроса
-- GET /item/{id}, c помощью которого можно получить простейшую HTML страницу, на которой будет информация о выбранном Item и кнопка Buy. По нажатию на кнопку Buy должен происходить запрос на /buy/{id}, получение session_id и далее  с помощью JS библиотеки Stripe происходить редирект на Checkout форму stripe.redirectToCheckout(sessionId=session_id)
+Secret key:
+https://dashboard.stripe.com/apikeys
+
+
+Запуск
+------
+
+```
+git clone https://github.com/Yanoben/StripeApi
+cd stripe_task
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+
+Запуск Docker
+------
+
+```
+git clone https://github.com/Yanoben/StripeApi
+docker-compose up -d
+```
+
+
+
+Главная страница: http://127.0.0.1:8000
+
+Если сервер не отдаёт информацию, подождите пару секунд и перезагрузите страницу
+
+Сервис
+------
+
+
+* `admin/` - Админка
+* `buy/<item_id>` - Покупка товара по id
+* `item/<item_id>` - Отдаёт информацию об id сессии
+
