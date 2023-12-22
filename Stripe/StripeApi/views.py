@@ -25,8 +25,8 @@ def get_stripe_session_id(request, id):
             },
         ],
         mode="payment",
-        success_url=config.settings.DOMAIN + '/success/',
-        cancel_url=config.settings.DOMAIN + '/cancel/'
+        success_url=settings.DOMAIN + '/success/',
+        cancel_url=settings.DOMAIN + '/cancel/'
     )
 
 

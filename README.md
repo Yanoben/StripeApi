@@ -35,7 +35,7 @@ https://dashboard.stripe.com/apikeys
 
 ```
 git clone https://github.com/Yanoben/StripeApi
-cd stripe_task
+cd stripe
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
